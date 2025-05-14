@@ -1,12 +1,12 @@
-
 import { User, Message, Chat, Community, Call } from "../types";
 
 export const currentUser: User = {
   id: "user-1",
-  name: "John Doe",
-  avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+  name: "Biswajit Dash",
+  avatar: "/lovable-uploads/485a3476-cb83-4eb3-982a-07bc2bad7327.png",
   status: "Available",
-  phoneNumber: "+1 234 567 890"
+  isOnline: true,
+  phoneNumber: "+1 (555) 123-4567"
 };
 
 export const contacts: User[] = [
