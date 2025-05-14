@@ -22,6 +22,10 @@ export interface Message {
     name?: string;
     size?: string;
   }[];
+  reactions?: {
+    userId: string;
+    emoji: string;
+  }[];
 }
 
 export interface Chat {
@@ -33,4 +37,5 @@ export interface Chat {
   isGroup?: boolean;
   groupName?: string;
   groupAvatar?: string;
+  typingUsers?: string[]; // Array of user IDs currently typing
 }

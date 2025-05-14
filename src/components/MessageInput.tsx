@@ -1,9 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Smile, Paperclip, Mic, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useChat } from "@/context/ChatContext";
+import debounce from "lodash.debounce";
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
@@ -11,11 +13,25 @@ interface MessageInputProps {
 
 const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
   const [message, setMessage] = useState<string>("");
+  const { startTyping, stopTyping } = useChat();
+  
+  const debouncedStopTyping = debounce(() => {
+    stopTyping();
+  }, 1000);
+  
+  useEffect(() => {
+    return () => {
+      debouncedStopTyping.cancel();
+      stopTyping();
+    };
+  }, [debouncedStopTyping, stopTyping]);
   
   const handleSend = () => {
     if (message.trim()) {
       onSendMessage(message);
       setMessage("");
+      stopTyping();
+      debouncedStopTyping.cancel();
     }
   };
   
@@ -23,6 +39,19 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+  
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setMessage(value);
+    
+    if (value.trim()) {
+      startTyping();
+      debouncedStopTyping();
+    } else {
+      debouncedStopTyping.cancel();
+      stopTyping();
     }
   };
 
@@ -41,7 +70,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
         <div className={cn("flex-1 relative")}>
           <Textarea
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder="Type a message"
             className="resize-none min-h-[40px] max-h-[120px] py-2 px-3 rounded-lg"
