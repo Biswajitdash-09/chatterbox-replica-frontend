@@ -1,5 +1,5 @@
 
-import { User, Message, Chat } from "../types";
+import { User, Message, Chat, Community, Call } from "../types";
 
 export const currentUser: User = {
   id: "user-1",
@@ -165,6 +165,25 @@ export const generateChats = (): Chat[] => {
     
     const lastMessage = messages[messages.length - 1];
     
+    // Generate some random calls for each chat
+    const calls: Call[] = Array(Math.floor(Math.random() * 3)).fill(0).map((_, i) => {
+      const isAudio = Math.random() > 0.5;
+      const status = Math.random() > 0.7 ? "missed" : (Math.random() > 0.5 ? "incoming" : "outgoing");
+      const timestamp = new Date();
+      timestamp.setHours(timestamp.getHours() - i - 1);
+      
+      return {
+        id: `call-${contact.id}-${i}`,
+        participants: isGroup 
+          ? [currentUser, contact, ...contacts.slice(0, 3).filter(c => c.id !== contact.id)]
+          : [currentUser, contact],
+        timestamp: timestamp.toISOString(),
+        duration: status === "missed" ? "0" : `${Math.floor(Math.random() * 300)}`,
+        type: isAudio ? "audio" : "video",
+        status
+      };
+    });
+    
     return {
       id: `chat-${contact.id}`,
       participants: isGroup 
@@ -175,7 +194,10 @@ export const generateChats = (): Chat[] => {
       lastMessageTimestamp: lastMessage.timestamp,
       isGroup: isGroup,
       groupName: isGroup ? contact.name : undefined,
-      groupAvatar: isGroup ? contact.avatar : undefined
+      groupAvatar: isGroup ? contact.avatar : undefined,
+      isArchived: Math.random() > 0.8,
+      isFavorite: Math.random() > 0.8,
+      calls
     };
   });
 };
@@ -236,6 +258,39 @@ const generateGroupMessages = (groupId: string): Message[] => {
 
 export const chats = generateChats();
 
+// Generate Communities
+export const communities: Community[] = [
+  {
+    id: "community-1",
+    name: "Tech Enthusiasts",
+    avatar: "https://randomuser.me/api/portraits/men/11.jpg",
+    description: "A community for tech enthusiasts to discuss the latest trends and technologies.",
+    createdBy: currentUser.id,
+    admins: [currentUser.id, contacts[0].id],
+    groups: chats.filter(chat => chat.isGroup).slice(0, 2),
+    announcements: [
+      {
+        id: "announce-1",
+        senderId: currentUser.id,
+        text: "Welcome to the Tech Enthusiasts community! Feel free to join any of our groups.",
+        timestamp: new Date().toISOString(),
+        status: "delivered"
+      }
+    ],
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "community-2",
+    name: "Neighborhood",
+    avatar: "https://randomuser.me/api/portraits/women/5.jpg",
+    description: "Community for our neighborhood to share important information and organize events.",
+    createdBy: contacts[1].id,
+    admins: [contacts[1].id, currentUser.id],
+    groups: chats.filter(chat => chat.isGroup).slice(2, 3),
+    createdAt: new Date().toISOString()
+  }
+];
+
 // Helper functions for finding data
 export const findUserById = (id: string): User | undefined => {
   if (id === currentUser.id) return currentUser;
@@ -244,6 +299,10 @@ export const findUserById = (id: string): User | undefined => {
 
 export const findChatById = (id: string): Chat | undefined => {
   return chats.find(chat => chat.id === id);
+};
+
+export const findCommunityById = (id: string): Community | undefined => {
+  return communities.find(community => community.id === id);
 };
 
 export const formatTime = (timestamp: string): string => {
@@ -264,4 +323,18 @@ export const formatDate = (timestamp: string): string => {
   } else {
     return date.toLocaleDateString([], { weekday: 'long' });
   }
+};
+
+export const formatDuration = (seconds: string): string => {
+  if (!seconds || seconds === "0") return "Missed";
+  
+  const secs = parseInt(seconds);
+  const minutes = Math.floor(secs / 60);
+  const remainingSecs = secs % 60;
+  
+  if (minutes === 0) {
+    return `${remainingSecs}s`;
+  }
+  
+  return `${minutes}m ${remainingSecs}s`;
 };

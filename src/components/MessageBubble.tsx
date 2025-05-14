@@ -1,12 +1,13 @@
 
 import { Message, User } from "@/types";
 import { formatTime } from "@/data/mockData";
-import { Check, CheckCheck, Trash2 } from "lucide-react";
+import { Check, CheckCheck, Trash2, File as FileIcon } from "lucide-react";
 import { useChat } from "@/context/ChatContext";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import EmojiPicker from "./EmojiPicker";
 import { currentUser } from "@/data/mockData";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface MessageBubbleProps {
   message: Message;
@@ -45,6 +46,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
   };
 
+  const hasMedia = message.media && message.media.length > 0;
+
   return (
     <div className={`flex mb-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
       <div
@@ -60,9 +63,39 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </div>
         )}
         
-        <div className={`break-words ${message.isDeleted ? 'italic text-gray-500' : ''}`}>
-          {message.text}
-        </div>
+        {hasMedia && (
+          <div className="mb-2 space-y-2">
+            {message.media?.map((item, index) => (
+              <div key={index} className="rounded-md overflow-hidden">
+                {item.type === 'image' ? (
+                  <AspectRatio ratio={4/3}>
+                    <img 
+                      src={item.url} 
+                      alt={item.name || "Media"} 
+                      className="w-full h-full object-cover"
+                    />
+                  </AspectRatio>
+                ) : (
+                  <div className="bg-gray-100 p-3 rounded-md flex items-center gap-2">
+                    <FileIcon className="h-6 w-6 text-gray-500" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{item.name}</p>
+                      {item.size && (
+                        <p className="text-xs text-gray-500">{item.size}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {(message.text || !hasMedia) && (
+          <div className={`break-words ${message.isDeleted ? 'italic text-gray-500' : ''}`}>
+            {message.text || (message.isDeleted ? "This message was deleted" : "Media message")}
+          </div>
+        )}
         
         {message.reactions && message.reactions.length > 0 && (
           <div className="flex items-center bg-white rounded-full px-2 py-1 mt-1 w-fit shadow-sm">

@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { Smile, Paperclip, Mic, Send } from "lucide-react";
+import { Smile, Paperclip, Mic, Send, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useChat } from "@/context/ChatContext";
 import debounce from "lodash.debounce";
+import FileUploader from "./FileUploader";
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
@@ -13,7 +14,8 @@ interface MessageInputProps {
 
 const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
   const [message, setMessage] = useState<string>("");
-  const { startTyping, stopTyping } = useChat();
+  const [showFileUploader, setShowFileUploader] = useState(false);
+  const { startTyping, stopTyping, uploadMedia } = useChat();
   
   const debouncedStopTyping = debounce(() => {
     stopTyping();
@@ -55,43 +57,69 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
     }
   };
 
+  const handleFileUpload = (files: File[], text?: string) => {
+    uploadMedia(files, text);
+    setShowFileUploader(false);
+  };
+
   return (
-    <div className="px-4 py-3 bg-white">
-      <div className="flex items-end gap-2">
-        <div className="flex gap-1">
-          <Button variant="ghost" size="icon" className="text-gray-600 rounded-full">
-            <Smile className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-gray-600 rounded-full">
-            <Paperclip className="h-5 w-5" />
+    <>
+      <div className="px-4 py-3 bg-white">
+        <div className="flex items-end gap-2">
+          <div className="flex gap-1">
+            <Button variant="ghost" size="icon" className="text-gray-600 rounded-full">
+              <Smile className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-gray-600 rounded-full"
+              onClick={() => setShowFileUploader(true)}
+            >
+              <Paperclip className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-600 rounded-full"
+              onClick={() => setShowFileUploader(true)}
+            >
+              <Image className="h-5 w-5" />
+            </Button>
+          </div>
+          
+          <div className={cn("flex-1 relative")}>
+            <Textarea
+              value={message}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message"
+              className="resize-none min-h-[40px] max-h-[120px] py-2 px-3 rounded-lg"
+              rows={1}
+            />
+          </div>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-gray-600 rounded-full"
+            onClick={handleSend}
+          >
+            {message.trim() ? (
+              <Send className="h-5 w-5" />
+            ) : (
+              <Mic className="h-5 w-5" />
+            )}
           </Button>
         </div>
-        
-        <div className={cn("flex-1 relative")}>
-          <Textarea
-            value={message}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message"
-            className="resize-none min-h-[40px] max-h-[120px] py-2 px-3 rounded-lg"
-            rows={1}
-          />
-        </div>
-        
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-gray-600 rounded-full"
-          onClick={handleSend}
-        >
-          {message.trim() ? (
-            <Send className="h-5 w-5" />
-          ) : (
-            <Mic className="h-5 w-5" />
-          )}
-        </Button>
       </div>
-    </div>
+
+      <FileUploader 
+        isOpen={showFileUploader}
+        onUpload={handleFileUpload}
+        onCancel={() => setShowFileUploader(false)}
+      />
+    </>
   );
 };
 
