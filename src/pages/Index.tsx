@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ChatProvider, useChat } from "@/context/ChatContext";
 import Sidebar from "@/components/Sidebar";
@@ -7,6 +6,7 @@ import ChatMessages from "@/components/ChatMessages";
 import MessageInput from "@/components/MessageInput";
 import ChatInfo from "@/components/ChatInfo";
 import { currentUser, findUserById } from "@/data/mockData";
+import { Chat } from "@/types"; // Add this import for the Chat type
 
 const ChatLayout = () => {
   const { chats, activeChat, setActiveChat, sendMessage } = useChat();
