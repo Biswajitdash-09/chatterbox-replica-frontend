@@ -405,16 +405,16 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     
     // Create URLs for the files (in a real app, these would be uploaded to a server)
     const media = Array.from(files).map(file => {
-      const type = file.type.startsWith('image/') 
-        ? 'image' 
+      const fileType = file.type.startsWith('image/') 
+        ? 'image' as const
         : file.type.startsWith('video/') 
-          ? 'video' 
+          ? 'video' as const
           : file.type.startsWith('audio/') 
-            ? 'audio' 
-            : 'document';
+            ? 'audio' as const
+            : 'document' as const;
       
       return {
-        type,
+        type: fileType,
         url: URL.createObjectURL(file),
         name: file.name,
         size: `${(file.size / 1024).toFixed(2)} KB`
