@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				whatsapp: {
+					green: '#25D366',
+					lightGreen: '#DCF8C6',
+					teal: '#128C7E',
+					darkGreen: '#075E54',
+					blue: '#34B7F1',
+					light: '#F0F2F5',
+					incoming: '#FFFFFF',
+					outgoing: '#DCF8C6',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
